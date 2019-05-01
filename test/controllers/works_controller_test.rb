@@ -34,6 +34,7 @@ describe WorksController do
   INVALID_CATEGORIES = ["nope", "42", "", "  ", "albumstrailingtext"]
 
   describe "index" do
+    # have to login to get access - success for after logging in, failure if not logged in
     it "succeeds when there are works" do
       get works_path
 
@@ -96,6 +97,7 @@ describe WorksController do
   end
 
   describe "show" do
+    # have to login to get access - success for after logging in, failure if not logged in
     it "succeeds for an extant work ID" do
       get work_path(existing_work.id)
 

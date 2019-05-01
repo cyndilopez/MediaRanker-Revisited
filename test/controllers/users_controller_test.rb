@@ -7,5 +7,11 @@ describe UsersController do
       get github_login_path
       must_respond_with :redirect
     end
+
+    it "successfully logs in" do
+     
+    end
+
+
   end
 end
