@@ -40,6 +40,12 @@ class WorksController < ApplicationController
   end
 
   def edit
+    # work_user = User.find_by(id: @work.user_id)
+    if @work.user_id != session[:user_id]
+      flash[:status] = :failure
+      flash[:result_text] = "You must be the owner of this work to edit it"
+      redirect_to root_path
+    end
   end
 
   def update
@@ -57,10 +63,16 @@ class WorksController < ApplicationController
   end
 
   def destroy
-    @work.destroy
-    flash[:status] = :success
-    flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
-    redirect_to root_path
+    if @work.user_id != session[:user_id]
+      flash[:status] = :failure
+      flash[:result_text] = "You must be the owner of this work to delete it"
+      redirect_to root_path
+    else
+      @work.destroy
+      flash[:status] = :success
+      flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
+      redirect_to root_path
+    end
   end
 
   def upvote
