@@ -9,28 +9,33 @@ describe UsersController do
       expect {
         perform_login(user)
       }.wont_change "User.count"
-      #   expect(flash[:status]).must_equal :success
       #Assert
       expect(session[:user_id]).must_equal user.id
+      expect(flash[:status]).must_equal :success
+      expect(flash[:result_text]).wont_be_nil
       must_redirect_to root_path
     end
 
     it "can log in a new user" do
+      start_count = User.count
+      user = User.new(username: "test-user", name: "test-name", email: "test-name@test.com", uid: 12345, provider: "github")
+      perform_login(user)
+      expect(User.count).must_equal start_count + 1
+      session[:user_id].must_equal User.last.id
+      expect(flash[:status]).must_equal :success
+      expect(flash[:result_text]).wont_be_nil
+      must_redirect_to root_path
     end
   end
-  #   describe "create" do
-  #     it "gets the login path" do
-  #       get github_login_path
-  #       must_respond_with :redirect
-  #     end
 
-  #     it "successfully logs in" do
-  #     end
-  #   end
-
-  describe "logged-in users" do
-    before do
-      #   @user = perform_login
-    end
+  it "logins with valid user data" do
+    start_count = User.count
+    user = User.new(username: "", name: "test-name", email: "test-name@test.com", uid: 12345, provider: "github")
+    user.valid?.must_equal false
+    perform_login(user)
+    expect(User.count).must_equal start_count
+    expect(flash[:status]).must_equal :error
+    expect(flash[:result_text]).wont_be_nil
+    must_redirect_to root_path
   end
 end

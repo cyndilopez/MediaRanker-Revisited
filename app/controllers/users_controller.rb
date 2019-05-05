@@ -13,6 +13,7 @@ class UsersController < ApplicationController
   def create
     auth_hash = request.env["omniauth.auth"]
     user = User.find_by(uid: auth_hash[:uid], provider: "github")
+    p auth_hash
     if user
       flash[:status] = :success
       flash[:result_text] = "Logged in as returning user #{user.name}"
