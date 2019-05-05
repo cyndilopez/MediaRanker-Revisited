@@ -16,6 +16,10 @@ class ApplicationController < ActionController::Base
       @login_user = User.find_by(id: session[:user_id])
     end
   end
+  
+  def correct_user?(work)
+    work.user_id == find_user
+  end
 
   def require_login
     if find_user.nil?

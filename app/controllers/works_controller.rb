@@ -23,6 +23,7 @@ class WorksController < ApplicationController
   def create
     @work = Work.new(media_params)
     @media_category = @work.category
+    @work.user_id = session[:user_id]
     if @work.save
       flash[:status] = :success
       flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
@@ -98,7 +99,7 @@ class WorksController < ApplicationController
   private
 
   def media_params
-    params.require(:work).permit(:title, :category, :creator, :description, :publication_year)
+    params.require(:work).permit(:title, :category, :creator, :description, :publication_year, :user_id)
   end
 
   def category_from_work
