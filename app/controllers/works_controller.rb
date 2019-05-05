@@ -1,7 +1,7 @@
 class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
-  skip_before_action :require_login, except: [:index, :show, :new]
+  skip_before_action :require_login, except: [:index, :show]
 
   before_action :category_from_work, except: [:root, :index, :new, :create]
 
@@ -91,7 +91,7 @@ class WorksController < ApplicationController
     end
 
     # Refresh the page to show either the updated vote count
-    # or the error message
+    # or the error messagep
     redirect_back fallback_location: work_path(@work)
   end
 
