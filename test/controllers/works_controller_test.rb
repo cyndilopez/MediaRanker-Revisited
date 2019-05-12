@@ -31,6 +31,128 @@ describe WorksController do
         must_respond_with :success
       end
     end
+
+    describe "show" do
+      it "requires a login to show a work" do
+        get work_path(existing_work.id)
+
+        must_redirect_to root_path
+      end
+    end
+
+    describe "index" do
+      it "requires a login to show list of works" do
+        get works_path
+        must_redirect_to root_path
+      end
+    end
+
+    describe "new" do
+      it "requires a login to instantiate a Work" do
+        get new_work_path
+        must_redirect_to root_path
+      end
+    end
+
+    describe "create" do
+      it "requires a login to create a work" do
+        new_work = { work: { title: "Dirty Computer", category: "album" } }
+
+        expect {
+          post works_path, params: new_work
+        }.wont_change "Work.count"
+
+        new_work = Work.find_by(title: "Dirty Computer")
+        new_work.must_be_nil
+        must_redirect_to root_path
+      end
+    end
+
+    describe "edit" do
+      # test for work has to belong to user that created it below
+      it "requires a login to edit a work" do
+        get edit_work_path(existing_work.id)
+        must_redirect_to root_path
+      end
+    end
+
+    describe "edit" do
+      # test for work has to belong to user that created it below
+      it "requires a login to edit a work" do
+        get edit_work_path(existing_work.id)
+        must_redirect_to root_path
+      end
+    end
+
+    describe "update" do
+      # test for work has to belong to user that created it below
+      it "requires a login to update a work" do
+        updates = { work: { title: "Dirty Computer" } }
+
+        expect {
+          put work_path(existing_work), params: updates
+        }.wont_change "Work.count"
+        updated_work = Work.find_by(id: existing_work.id)
+        updated_work.title.must_equal existing_work.title
+        must_respond_with :redirect
+        must_redirect_to root_path
+      end
+    end
+
+    describe "destroy" do
+      # test for work has to belong to user that created it below
+      it "requires a login to destroy a work" do
+        expect {
+          delete work_path(existing_work.id)
+        }.wont_change "Work.count"
+        must_respond_with :redirect
+        must_redirect_to root_path
+      end
+    end
+  end
+
+  describe "Logged in Users" do
+    before do
+      perform_login(User.first)
+    end
+
+    describe "index" do
+      # have to login to get access - success for after logging in, failure if not logged in
+      it "succeeds when there are works" do
+        get works_path
+
+        must_respond_with :success
+      end
+
+      it "succeeds when there are no works" do
+        Work.all do |work|
+          work.destroy
+        end
+
+        get works_path
+
+        must_respond_with :success
+      end
+    end
+
+    describe "show" do
+      # have to login to get access - success for after logging in, failure if not logged in
+      it "succeeds for an extant work ID" do
+        get work_path(existing_work.id)
+
+        must_respond_with :success
+      end
+
+      it "renders 404 not_found for a bogus work ID" do
+        destroyed_id = existing_work.id
+        existing_work.destroy
+
+        get work_path(destroyed_id)
+
+        must_respond_with :not_found
+      end
+    end
+
     describe "new" do
       it "succeeds" do
         get new_work_path
@@ -148,64 +270,6 @@ describe WorksController do
         must_respond_with :not_found
       end
     end
-    describe "show" do
-      it "requires a login to show a work" do
-        get work_path(existing_work.id)
-
-        must_redirect_to root_path
-      end
-    end
-
-    describe "index" do
-      it "requires a login to show list of works" do
-        get works_path
-        must_redirect_to root_path
-      end
-    end
-  end
-
-  describe "Logged in Users" do
-    before do
-      perform_login(User.first)
-    end
-
-    describe "index" do
-      # have to login to get access - success for after logging in, failure if not logged in
-      it "succeeds when there are works" do
-        get works_path
-
-        must_respond_with :success
-      end
-
-      it "succeeds when there are no works" do
-        Work.all do |work|
-          work.destroy
-        end
-
-        get works_path
-
-        must_respond_with :success
-      end
-    end
-
-    describe "show" do
-      # have to login to get access - success for after logging in, failure if not logged in
-      it "succeeds for an extant work ID" do
-        get work_path(existing_work.id)
-
-        must_respond_with :success
-      end
-
-      it "renders 404 not_found for a bogus work ID" do
-        destroyed_id = existing_work.id
-        existing_work.destroy
-
-        get work_path(destroyed_id)
-
-        must_respond_with :not_found
-      end
-    end
-
     describe "upvote" do
       it "redirects to the work page if no user is logged in" do
         skip
