@@ -45,11 +45,17 @@ class WorksController < ApplicationController
     if @work.user_id != session[:user_id]
       flash[:status] = :failure
       flash[:result_text] = "You must be the owner of this work to edit it"
-      redirect_to root_path
+      redirect_to root_path, status: :bad_request
     end
   end
 
   def update
+    if @work.user_id != session[:user_id]
+      flash[:status] = :failure
+      flash[:result_text] = "You must be the owner of this work to edit it"
+      redirect_to root_path, status: :bad_request
+      return
+    end
     @work.update_attributes(media_params)
     if @work.save
       flash[:status] = :success
@@ -67,7 +73,7 @@ class WorksController < ApplicationController
     if @work.user_id != session[:user_id]
       flash[:status] = :failure
       flash[:result_text] = "You must be the owner of this work to delete it"
-      redirect_to root_path
+      redirect_to root_path, status: :bad_request
     else
       @work.destroy
       flash[:status] = :success

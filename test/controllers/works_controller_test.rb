@@ -211,6 +211,15 @@ describe WorksController do
 
         must_respond_with :not_found
       end
+
+      it "won't let a user edit another user's work" do
+        perform_login(users(:kari))
+        get edit_work_path(existing_work.id)
+
+        must_respond_with :bad_request
+
+        flash[:status].must_equal :failure
+      end
     end
 
     describe "update" do
@@ -247,6 +256,17 @@ describe WorksController do
 
         must_respond_with :not_found
       end
+
+      it "won't let a user update another user's work" do
+        perform_login(users(:kari))
+        updates = { work: { title: "Dirty Computer" } }
+
+        put work_path(existing_work), params: updates
+
+        must_respond_with :bad_request
+
+        flash[:status].must_equal :failure
+      end
     end
 
     describe "destroy" do
@@ -269,22 +289,54 @@ describe WorksController do
 
         must_respond_with :not_found
       end
+
+      it "won't let a user delete another user's work" do
+        perform_login(users(:kari))
+
+        delete work_path(existing_work.id)
+
+        must_respond_with :bad_request
+
+        flash[:status].must_equal :failure
+      end
     end
     describe "upvote" do
       it "redirects to the work page if no user is logged in" do
-        skip
+        delete logout_path
+        post upvote_path(existing_work)
+
+        flash[:status].must_equal :failure
+
+        flash[:result_text].must_include "logged in"
+
+        must_redirect_to root_path
       end
 
       it "redirects to the work page after the user has logged out" do
-        skip
+        delete logout_path
+
+        session[:user_id].must_be_nil
+
+        must_redirect_to root_path
       end
 
       it "succeeds for a logged-in user and a fresh user-vote pair" do
-        skip
+        perform_login(User.first)
+        fresh_work = works(:movie)
+
+        post upvote_path(fresh_work.id)
+
+        flash[:status].must_equal :success
+        flash[:result_text].must_include "Successfully upvoted"
       end
 
       it "redirects to the work page if the user has already voted for that work" do
-        skip
+        perform_login(User.first)
+
+        post upvote_path(existing_work.id)
+
+        flash[:status].must_equal :failure
+        flash[:messages][:user].must_include "has already voted for this work"
       end
     end
   end
