@@ -71,7 +71,7 @@ describe WorksController do
     describe "edit" do
       # test for work has to belong to user that created it below
       it "requires a login to edit a work" do
-        get edit_work_path(-1)
+        get edit_work_path(-100)
         must_redirect_to root_path
       end
     end
